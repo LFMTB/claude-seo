@@ -1,0 +1,106 @@
+{
+  "summary": {
+    "health_score": 89,
+    "business_type": "E-commerce (Luxury goods for men)",
+    "top_findings": [
+      "Missing canonical tag",
+      "Missing H1 tag",
+      "Missing Open Graph tags: og:title, og:description, og:image, og:url",
+      "No Product schema on e-commerce pages",
+      "Inline scripts: 97"
+    ],
+    "quick_wins": [
+      "Missing canonical tag",
+      "Missing H1 tag",
+      "Missing Open Graph tags: og:title, og:description, og:image, og:url",
+      "No Product schema on e-commerce pages",
+      "Inline scripts: 97"
+    ]
+  },
+  "categories": [
+    {
+      "name": "Technical SEO",
+      "score": 85,
+      "findings": [
+        {
+          "title": "Missing canonical tag",
+          "severity": "High",
+          "description": "Missing canonical tag",
+          "recommendation": "Add a canonical link tag to prevent duplicate content."
+        }
+      ]
+    },
+    {
+      "name": "On-Page SEO",
+      "score": 74,
+      "findings": [
+        {
+          "title": "Missing H1 tag",
+          "severity": "High",
+          "description": "Missing H1 tag",
+          "recommendation": "Add exactly one H1 tag with the primary keyword."
+        },
+        {
+          "title": "Missing Open Graph tags: og:title, og:description, og:image, og:url",
+          "severity": "Medium",
+          "description": "Missing Open Graph tags: og:title, og:description, og:image, og:url",
+          "recommendation": "Add all OG tags for social sharing."
+        },
+        {
+          "title": "Missing Twitter Card tags",
+          "severity": "Low",
+          "description": "Missing Twitter Card tags",
+          "recommendation": "Add twitter:card meta for Twitter sharing."
+        }
+      ]
+    },
+    {
+      "name": "Schema & Structured Data",
+      "score": 92,
+      "findings": [
+        {
+          "title": "No Product schema on e-commerce pages",
+          "severity": "Medium",
+          "description": "No Product schema on e-commerce pages",
+          "recommendation": "Add Product schema with price, availability, reviews."
+        }
+      ]
+    },
+    {
+      "name": "Performance",
+      "score": 92,
+      "findings": [
+        {
+          "title": "Inline scripts: 97",
+          "severity": "Medium",
+          "description": "Inline scripts: 97",
+          "recommendation": "Move inline scripts to external files where possible."
+        }
+      ]
+    },
+    {
+      "name": "AI Search Readiness",
+      "score": 92,
+      "findings": [
+        {
+          "title": "No llms.txt file found",
+          "severity": "Medium",
+          "description": "No llms.txt file found",
+          "recommendation": "Add /llms.txt to guide AI crawlers and LLMs."
+        }
+      ]
+    },
+    {
+      "name": "Images",
+      "score": 92,
+      "findings": [
+        {
+          "title": "1/131 images missing alt text (0%)",
+          "severity": "Medium",
+          "description": "1/131 images missing alt text (0%)",
+          "recommendation": "Add descriptive alt text to all images."
+        }
+      ]
+    }
+  ]
+}

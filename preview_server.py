@@ -144,6 +144,22 @@ def _run_doctor() -> dict:
         return {"ok": False, "output": str(exc)}
 
 
+def _get_audit() -> dict:
+    audit_path = ROOT / "luxuryformen.com-audit" / "audit-data.json"
+    try:
+        return json.loads(audit_path.read_text(encoding="utf-8"))
+    except (OSError, ValueError):
+        return {"error": "No audit data found. Run an audit first."}
+
+
+def _get_audit_report() -> str:
+    report_path = ROOT / "luxuryformen.com-audit" / "FULL-AUDIT-REPORT.md"
+    try:
+        return report_path.read_text(encoding="utf-8")
+    except OSError:
+        return "No audit report found."
+
+
 def _test_count() -> str:
     tests_dir = ROOT / "tests"
     if not tests_dir.is_dir():
@@ -264,6 +280,7 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
     <button class="tab" data-tab="agents">Agents</button>
     <button class="tab" data-tab="scripts">Scripts</button>
     <button class="tab" data-tab="checks">Checks</button>
+    <button class="tab" data-tab="audit">Audit: luxuryformen.com</button>
   </div>
 
   <div class="panel active" id="panel-overview">
@@ -296,6 +313,10 @@ DASHBOARD_HTML = r"""<!DOCTYPE html>
       <button class="btn sec" onclick="runCheck('doctor')">Run Doctor</button>
     </div>
     <div class="output" id="check-output">Select a check to run.</div>
+  </div>
+
+  <div class="panel" id="panel-audit">
+    <div id="audit-content"><span style="color:var(--text-dim)">Loading audit...</span></div>
   </div>
 </div>
 
@@ -382,7 +403,52 @@ document.querySelectorAll('.tab').forEach(function(t) {
   });
 });
 
+async function loadAudit() {
+  var el = document.getElementById('audit-content');
+  var audit = await api('audit');
+  if (audit.error) { el.innerHTML = '<p>' + esc(audit.error) + '</p>'; return; }
+  var s = audit.summary || {};
+  var cats = audit.categories || [];
+  var score = s.health_score || 0;
+  var scoreColor = score >= 80 ? 'var(--accent2)' : score >= 60 ? 'var(--warn)' : 'var(--err)';
+
+  var html = '<div class="card" style="text-align:center;margin-bottom:1rem">' +
+    '<div style="font-size:3rem;font-weight:700;color:' + scoreColor + '">' + score + '/100</div>' +
+    '<div style="color:var(--text-dim)">SEO Health Score — luxuryformen.com</div>' +
+    '<div style="color:var(--text-dim);font-size:.85rem;margin-top:.5rem">Business type: ' + esc(s.business_type || '?') + '</div>' +
+    '</div>';
+
+  if (cats.length) {
+    html += '<div class="cards" style="margin-bottom:1.5rem">';
+    cats.forEach(function(c) {
+      var cs = c.score || 0;
+      var cc = cs >= 80 ? 'var(--accent2)' : cs >= 60 ? 'var(--warn)' : 'var(--err)';
+      html += '<div class="card"><h3>' + esc(c.name) + '</h3>' +
+        '<div style="font-size:1.5rem;font-weight:700;color:' + cc + '">' + cs + '/100</div>';
+      if (c.findings && c.findings.length) {
+        html += '<div style="margin-top:.5rem">';
+        c.findings.forEach(function(f) {
+          var emoji = {'Critical':'\uD83D\uDD34','High':'\uD83D\uDFE0','Medium':'\uD83D\uDFE1','Low':'\uD83D\uDD35'}[f.severity] || '\u2022';
+          html += '<div style="font-size:.82rem;margin:.2rem 0">' + emoji + ' <strong>[' + esc(f.severity) + ']</strong> ' + esc(f.title) + '</div>';
+        });
+        html += '</div>';
+      }
+      html += '</div>';
+    });
+    html += '</div>';
+  }
+
+  if (s.top_findings && s.top_findings.length) {
+    html += '<div class="card"><h3>Top Findings</h3>';
+    s.top_findings.forEach(function(tf) { html += '<div style="font-size:.85rem;margin:.2rem 0">\u2022 ' + esc(tf) + '</div>'; });
+    html += '</div>';
+  }
+
+  el.innerHTML = html;
+}
+
 init();
+loadAudit();
 </script>
 </body>
 </html>"""
@@ -404,6 +470,7 @@ class Handler(BaseHTTPRequestHandler):
             "/api/doctor": lambda: self._serve_json(_run_doctor()),
             "/api/portability": lambda: self._serve_json(_run_portability()),
             "/api/testcount": lambda: self._serve_json({"count": _test_count()}),
+            "/api/audit": lambda: self._serve_json(_get_audit()),
         }
         handler = routes.get(path)
         if handler:
